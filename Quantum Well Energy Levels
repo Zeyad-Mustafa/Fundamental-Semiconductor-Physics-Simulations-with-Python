@@ -1,0 +1,39 @@
+from semiconductor_physics import QuantumEffects
+import matplotlib.pyplot as plt
+
+# Material properties for GaAs
+class GaAsProps:
+    epsilon_r = 13.1
+    bandgap = 1.42
+
+material = GaAsProps()
+quantum = QuantumEffects(material)
+
+# Well width range
+well_widths = np.linspace(5, 50, 100)  # nm
+energy_levels = []
+
+for width in well_widths:
+    levels = quantum.quantum_well_energy_levels(width, 0.3, 0.067)
+    # Store first 3 levels
+    if len(levels) >= 3:
+        energy_levels.append(levels[:3])
+    else:
+        energy_levels.append(levels + [np.nan]*(3-len(levels)))
+
+energy_array = np.array(energy_levels).T
+
+plt.figure(figsize=(12, 8))
+labels = ['n=1', 'n=2', 'n=3']
+colors = ['b-', 'r-', 'g-']
+
+for i, (levels, label, color) in enumerate(zip(energy_array, labels, colors)):
+    valid = ~np.isnan(levels)
+    plt.plot(well_widths[valid], levels[valid], color, linewidth=2, label=label)
+
+plt.xlabel('Well Width (nm)')
+plt.ylabel('Energy Level (eV)')
+plt.title('GaAs Quantum Well Energy Levels')
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.show()
